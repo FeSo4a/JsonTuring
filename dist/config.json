@@ -1,0 +1,11 @@
+{
+  "name": "jsonTexts",
+  "version": "1.0.0",
+  "log": {
+    "level": "debug",
+    "filename": "../log/log.log",
+    "filemode": "w",
+    "datefmt": "%d/%m/%Y %I:%M:%S %p",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}

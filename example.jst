@@ -1,0 +1,29 @@
+{
+  "init": {
+    "head": "q1",
+    "value": 0,
+    "pos": 0,
+    "max_size": 20
+  },
+  "ops": [
+    {
+      "input":{"text":[{"text":"N:None/L:left/R:right/"},{"text":"H:stop","color":"red"}]}
+    },
+    {
+      "case":{"cond":"L"},
+      "run":{"set":{"move":"L"},"output":["head","value","pos"],"text":[{"text":"left","color":"green"}]}
+    },
+    {
+      "case":{"cond":"R"},
+      "run":{"set":{"move":"R"},"output":["head","value","pos"],"text":[{"text":"right","color":"green"}]}
+    },
+    {
+      "case":{"cond":"N"},
+      "run":{"set":{},"output":["head","value","pos"],"text":[{"text":"pass","color":"yellow"}]}
+    },
+    {
+      "case":{"cond":"H"},
+      "run":{"set":{"move":"H"},"output":["head","value","pos"],"text":[{"text":"stop","color":"red"}]}
+    }
+  ]
+}
