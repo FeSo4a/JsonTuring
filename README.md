@@ -30,7 +30,7 @@ python src/jsonTexts.py
 
 - `help` - 显示帮助菜单
 - `run <file>` - 运行指定的 [.jst](example.jst) 文件 _(JsonTuring)_
-- `read <file> <encoding>` - 读取并显示 [.jst](example.jst) 文件内容 _(JsonText)_
+- `read <file> <encoding>` - 读取并显示 [.jtx](example.jtx) 文件内容 _(JsonText)_
 - `color [<color>|info]` - 设置文字颜色或查看当前颜色
 - `back [<background>|info]` - 设置背景颜色或查看当前背景
 - `save` - 保存当前主题设置
@@ -38,7 +38,7 @@ python src/jsonTexts.py
 - `about` - 显示作者信息
 - `exit` - 退出程序
 
-### JST 文件格式
+### JST & JTX 文件格式
 
 JsonText 文件采用 JSON 格式，包含以下主要部分：
 - [**[]**](#1145 "list") `根列表（自动换行）` [$_*$](#1145 "在JsonTuring中使用时省略最外层")
@@ -75,7 +75,7 @@ JsonTuring 文件采用 JSON 格式，包含以下主要部分：
 
 ## 示例
 
-查看 example.jst 文件了解基本用法。  
+查看 example.jst & example.jtx 文件了解基本用法。  
 
 ## 许可证
 
@@ -86,3 +86,8 @@ MIT License
 版本：v1.0.0  
 Github: https://github.com/FeSo4a  
 Bilibili: https://space.bilibili.com/3546674548967510
+
+## 更新
+|版本|内容|
+|-|-|
+|V1.1.0|`case`中的`cond`和`value`、`head`可以并存|

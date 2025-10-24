@@ -3,27 +3,31 @@
     "head": "q1",
     "value": 0,
     "pos": 0,
-    "max_size": 20
+    "max_size": 20,
+    "//": "初始化"
   },
   "ops": [
     {
-      "input":{"text":[{"text":"N:None/L:left/R:right/"},{"text":"H:stop","color":"red"}]}
+      "input":{"text":[{"text":"N:None/L:left/R:right/"},{"text":"H:stop","color":"red"}]},
+      "//": "读取用户输入"
     },
     {
       "case":{"cond":"L"},
-      "run":{"set":{"move":"L"},"output":["head","value","pos"],"text":[{"text":"left","color":"green"}]}
+      "run":{"set":{"move":"L"},"output":["head","value","pos"],"text":[{"text":"left\n","color":"green"}]},
+      "//": "当输入为L时往左转"
     },
     {
       "case":{"cond":"R"},
-      "run":{"set":{"move":"R"},"output":["head","value","pos"],"text":[{"text":"right","color":"green"}]}
+      "run":{"set":{"move":"R"},"output":["head","value","pos"],"text":[{"text":"right\n","color":"green"}]},
+      "//": "当输入为R时往右转"
     },
     {
       "case":{"cond":"N"},
-      "run":{"set":{},"output":["head","value","pos"],"text":[{"text":"pass","color":"yellow"}]}
+      "run":{"set":{},"output":["head","value","pos"],"text":[{"text":"pass\n","color":"yellow"}]}
     },
     {
       "case":{"cond":"H"},
-      "run":{"set":{"move":"H"},"output":["head","value","pos"],"text":[{"text":"stop","color":"red"}]}
+      "run":{"set":{"move":"H"},"output":["head","value","pos"],"text":[{"text":"stop\n","color":"red"}]}
     }
   ]
 }

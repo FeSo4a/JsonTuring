@@ -45,7 +45,7 @@ back_ground = {
     "reset": colorama.Back.RESET
 }
 
-version = "1.0.0"
+version = "JsonTuring Version V1.1.0"
 
 
 def read_file(file, encoding):
@@ -164,7 +164,8 @@ def run(table):
                 matched = False
                 if cond is not None:
                     # 有条件字段，需要用户输入匹配
-                    matched = (user_input is not None and cond == user_input)
+                    matched = (user_input is not None and cond == user_input) and (
+                                chead == head and cvalue == tape[pos])
                 else:
                     # 无条件字段，使用原有的 head 和 value 匹配
                     matched = (chead == head and cvalue == tape[pos])
@@ -220,7 +221,7 @@ def run(table):
                         elif move == "N":
                             pass
                         elif move == "H":
-                            print("Run successfully")
+                            print(f"{colorama.Fore.GREEN}Run successfully")
                             return
                         else:
                             print(f"{colorama.Fore.RED}Error: Invalid move command")
@@ -248,31 +249,59 @@ def run(table):
         return
 
 
+def print_list(file, encoding):
+    """
+    从指定的JSON文件中读取数据并打印到控制台，支持颜色和背景色显示
+
+    参数:
+        file (str): 要读取的文件名（不包含.jtx扩展名）
+        encoding (str): 文件编码格式
+
+    返回值:
+        无返回值
+
+    异常处理:
+        FileNotFoundError: 当文件不存在时
+        json.JSONDecodeError: 当JSON格式无效时
+        Exception: 其他未预期的异常
+    """
+    try:
+        # 打开并读取JSON文件，然后按格式打印文本内容
+        with open(f"{file}.jtx", "r", encoding=encoding) as f:
+            file_data = json.load(f)
+            for sentence in file_data:
+                for texts in sentence:
+                    print(f"{color.get(texts.get('color', 'reset'))}"
+                          f"{back_ground.get(texts.get('back', 'reset'))}"
+                          f"{texts.get('text', '')}",
+                          end="")
+                print()
+
+    except FileNotFoundError:
+        print(f"{colorama.Fore.RED}File {file}.jtx not found.")
+
+    except json.JSONDecodeError:
+        print(f"{colorama.Fore.RED}Invalid JSON format in {file}.jtx.")
+
+    except Exception as e:
+        print(f"{colorama.Fore.RED}Error reading file: {str(e)}")
+
+
 def main():
     try:
         if len(sys.argv) < 2:
-            print("Usage: python3 jst.py <file>")
+            print("Usage: python3 jst.py (run|info|read) <file>")
             return
-        elif len(sys.argv) == 2:
-            # noinspection PyUnusedLocal
-            flag = None
-            flag = read_file(sys.argv[1], "utf-8")
-            if flag is None:
-                print(f"{colorama.Fore.RED}Error: File {sys.argv[1]} can't be read")
-                return
-            else:
+        elif len(sys.argv) >= 2:
+            if sys.argv[1] == "run":
+                flag = read_file(sys.argv[2], "utf-8")
                 run(flag)
-        elif len(sys.argv) == 3:
-            # noinspection PyUnusedLocal
-            flag = None
-            flag = read_file(sys.argv[1], sys.argv[2])
-            if flag is None:
-                print(f"{colorama.Fore.RED}Error: File {sys.argv[1]} can't be read")
-                return
+            elif sys.argv[1] == "info":
+                print(version)
+            elif sys.argv[1] == "read":
+                print_list(sys.argv[2], "utf-8")
             else:
-                run(flag)
-        if sys.argv[1] == "info":
-            print(f"{colorama.Fore.GREEN}JsonTuring version: {version}")
+                print("Usage: python3 jst.py (run|info|read) <file>")
 
     except Exception as e:
         print(f"{colorama.Fore.RED}Error: {str(e)}")

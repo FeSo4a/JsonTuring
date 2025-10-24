@@ -6,6 +6,7 @@ import time
 
 import colorama
 
+# 定义日志级别映射字典，将字符串级别的日志映射到 logging 模块对应的常量
 logging_level = {
     "debug": logging.DEBUG,
     "info": logging.INFO,
@@ -14,6 +15,7 @@ logging_level = {
     "critical": logging.CRITICAL
 }
 
+# 定义日志配置字典，包括默认日志级别、输出文件路径、文件打开模式、日期格式和日志格式
 log = {
     "level": "info",
     "filename": "../log/log.log",
@@ -22,6 +24,7 @@ log = {
     "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 }
 
+# 定义前景色字典，使用 colorama 库提供的颜色常量，用于在终端中设置文字颜色
 color = {
     "light_red": colorama.Fore.LIGHTRED_EX,
     "red": colorama.Fore.RED,
@@ -42,6 +45,7 @@ color = {
     "reset": colorama.Fore.RESET
 }
 
+# 定义背景色字典，使用 colorama 库提供的背景色常量，用于在终端中设置文字背景色
 back_ground = {
     "light_red": colorama.Back.LIGHTRED_EX,
     "red": colorama.Back.RED,
@@ -62,6 +66,8 @@ back_ground = {
     "reset": colorama.Back.RESET
 }
 
+# 尝试加载主题配置文件，设置前景色和背景色
+# 如果文件不存在，则使用默认颜色
 try:
     with open("../save/save.json", "r", encoding="utf-8") as s:
         save = json.load(s)
@@ -75,8 +81,11 @@ except FileNotFoundError:
     theme = f"{color.get(tcolor, colorama.Fore.RESET)}{back_ground.get(tback, colorama.Back.RESET)}"
     logging.error("Error loading the file")
 
+# 初始化colorama库，用于在终端中显示颜色
 colorama.init(autoreset=True)
 
+# 尝试加载日志配置文件并设置日志记录参数
+# 如果配置文件不存在，则使用默认的日志设置
 try:
     with open("../config.json", "r", encoding="utf-8") as f:
         config = json.load(f)
@@ -108,19 +117,67 @@ except FileNotFoundError:
 
 
 def clear():
+    """
+    清空终端屏幕
+
+    该函数根据操作系统类型执行相应的清屏命令：
+    - Windows系统(nt)：执行cls命令
+    - 非Windows系统：执行clear命令
+
+    无参数
+
+    无返回值
+    """
+    # 根据操作系统类型选择合适的清屏命令
     if os.name == "nt":
         os.system("cls")
     else:
         os.system("clear")
 
 
+
 def pr_about():
+    """
+    打印程序相关信息
+
+    该函数用于输出程序的版本信息、作者信息以及相关的链接地址。
+    包括GitHub仓库地址和Bilibili个人空间链接。
+
+    参数:
+        无
+
+    返回值:
+        无
+    """
+    print("Version: V1.1.0")
     print("Author: @FeSo4a")
     print("Github: https://github.com/FeSo4a")
     print("Bilibili: https://space.bilibili.com/3546674548967510")
 
 
+
 def pr_help():
+    """
+    打印帮助菜单，显示所有可用命令及其功能说明
+
+    该函数输出程序支持的所有命令，包括：
+    - pass: 通过当前操作
+    - about: 显示作者信息
+    - clear: 清屏
+    - exit: 退出程序
+    - help: 显示帮助菜单或特定命令的帮助
+    - color: 设置颜色或显示当前颜色
+    - back: 设置背景或显示当前背景
+    - save: 保存主题设置
+    - read: 读取并显示.jtx文件
+    - run: 运行.jst文件
+
+    参数:
+        无
+
+    返回值:
+        无
+    """
     print(f"{theme}pass/  -> Pass")
     print(f"{theme}about -> Print author information")
     print(f"{theme}clear -> Clear the screen")
@@ -129,15 +186,30 @@ def pr_help():
     print(f"{theme}color [<color>|info] -> Set color or show current color")
     print(f"{theme}back [<background>|info] -> Set background or show current background")
     print(f"{theme}save -> Save the theme")
-    print(f"{theme}python (help|info) <module> -> Show Python version or help")
     print(
-        f"{theme}read <file> <encoding> -> Read and display a .jst file (You don't need to add .jst to the file name)")
-    print(f"{theme}run <file> -> Run a .jst file")
+        f"{theme}read <file> <encoding> -> Read and display a .jtx file (You don't need to add .jtx to the file name)")
+    print(f"{theme}run <file> -> Run a .jst file (You don't need to add .jst to the file name)")
 
 
 def print_list(file, encoding):
+    """
+    从指定的JSON文件中读取数据并打印到控制台，支持颜色和背景色显示
+
+    参数:
+        file (str): 要读取的文件名（不包含.jtx扩展名）
+        encoding (str): 文件编码格式
+
+    返回值:
+        无返回值
+
+    异常处理:
+        FileNotFoundError: 当文件不存在时
+        json.JSONDecodeError: 当JSON格式无效时
+        Exception: 其他未预期的异常
+    """
     try:
-        with open(f"{file}.jst", "r", encoding=encoding) as f:
+        # 打开并读取JSON文件，然后按格式打印文本内容
+        with open(f"{file}.jtx", "r", encoding=encoding) as f:
             file_data = json.load(f)
             for sentence in file_data:
                 for texts in sentence:
@@ -148,12 +220,12 @@ def print_list(file, encoding):
                 print()
 
     except FileNotFoundError:
-        print(f"{theme}File {file}.jst not found.")
-        logging.error(f"File {file}.jst not found.")
+        print(f"{theme}File {file}.jtx not found.")
+        logging.error(f"File {file}.jtx not found.")
 
     except json.JSONDecodeError:
-        print(f"{theme}Invalid JSON format in {file}.jst.")
-        logging.error(f"Invalid JSON format in {file}.jst.")
+        print(f"{theme}Invalid JSON format in {file}.jtx.")
+        logging.error(f"Invalid JSON format in {file}.jtx.")
 
     except Exception as e:
         print(f"{theme}Error reading file: {str(e)}")
@@ -278,10 +350,12 @@ def run(table):
                 cond = case.get("cond", None)  # 改为 None 作为默认值
 
                 # 更精确的条件匹配逻辑
+                # noinspection PyUnusedLocal
                 matched = False
                 if cond is not None:
                     # 有条件字段，需要用户输入匹配
-                    matched = (user_input is not None and cond == user_input)
+                    matched = (user_input is not None and cond == user_input) and (
+                                chead == head and cvalue == tape[pos])
                 else:
                     # 无条件字段，使用原有的 head 和 value 匹配
                     matched = (chead == head and cvalue == tape[pos])
@@ -370,15 +444,30 @@ def run(table):
 
 
 def set_color(colors):
+    """
+    设置或显示当前主题颜色
+
+    参数:
+        colors (str): 颜色名称字符串，支持的颜色在color字典中定义
+
+    返回值:
+        None
+    """
     global tcolor
     colors = colors.lower()
+
+    # 处理info命令，显示当前颜色
     if colors == "info":
         print(f"{theme}Color: {tcolor}")
         return
+
+    # 验证颜色是否有效
     if colors not in color:
         print(f"{theme}Unknown color, type 'help' for help.")
         logging.warning("Unknown color")
         return
+
+    # 设置新颜色并记录日志
     tcolor = colors
     if tcolor == "reset":
         print(f"{theme}Color reset.")
@@ -388,15 +477,35 @@ def set_color(colors):
 
 
 def set_back(backs):
+    """
+    设置背景主题的函数
+
+    参数:
+        backs (str): 背景主题名称或命令
+
+    返回值:
+        无返回值
+
+    功能说明:
+        - 处理背景主题的设置和查询
+        - 支持查询当前背景、设置新背景、重置背景等功能
+        - 包含输入验证和日志记录
+    """
     global tback
     backs = backs.lower()
+
+    # 处理背景信息查询命令
     if backs == "info":
         print(f"{theme}Background: {tback}")
         return
+
+    # 验证背景名称是否有效
     if backs not in back_ground:
         print(f"{theme}Unknown background, type 'help' for help.")
         logging.warning("Unknown background")
         return
+
+    # 设置新的背景主题
     tback = backs
     if tback == "reset":
         print(f"{theme}Background reset.")
@@ -432,28 +541,6 @@ def operate(command):
             else:
                 print(f"{theme}Unknown command. Type 'help' for help.")
                 logging.warning("Unknown command")
-
-    elif command[0] == "python":
-        if len(command) < 2:
-            print(f"{theme}Python version: {sys.version}")
-            return
-        elif len(command) > 2:
-            if command[1] == "help":
-                # noinspection PyBroadException
-                try:
-                    help(command[2])
-                except Exception:
-                    print(f"{theme}Help not available in executable version.")
-                    logging.error("Help not available in executable version.")
-            elif command[1] == "info":
-                print(f"{theme}Python version: {sys.version}")
-                return
-            else:
-                print(f"{theme}Invalid arguments. Usage: python (help|info) <module>")
-                logging.warning("Invalid arguments")
-        else:
-            print(f"{theme}Invalid arguments. Usage: python (help|info) <module>")
-            logging.warning("Invalid arguments")
 
     elif command[0] == "color":
         if len(command) < 2:
@@ -516,15 +603,31 @@ def operate(command):
 
 
 def main():
+    """
+    主函数，负责程序的主要运行循环
+    该函数初始化主题颜色，显示帮助信息，并持续接收用户输入命令进行处理
+
+    全局变量:
+        theme: 主题颜色样式
+
+    无参数
+    无返回值
+    """
     global theme
     print(f"{theme}Type 'help' for help.")
 
+    # 主循环：持续接收用户命令并执行操作
     while True:
+        # 更新主题颜色样式
         theme = f"{color.get(tcolor, colorama.Fore.RESET)}{back_ground.get(tback, colorama.Back.RESET)}"
+        # 获取用户输入的命令
         command = input(f"{theme}> ")
+        # 执行对应的命令操作
         operate(command)
 
 
 if __name__ == "__main__":
+    # 清理操作，为程序运行做准备
     clear()
+    # 执行程序的主要逻辑
     main()
