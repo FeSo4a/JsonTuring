@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JsonTuring v1.0.0 - 图灵机模拟器</title>
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&gt;_&lt;</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #00ff00;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 扫描线效果 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                    to bottom,
+                    transparent 50%,
+                    rgba(0, 255, 0, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanline 10s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(4px);
+            }
+        }
+
+        /* 闪烁光标 */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00ff00;
+            vertical-align: middle;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px dashed #00ff00;
+            margin-bottom: 30px;
+        }
+
+        .version-badge {
+            background-color: #003300;
+            color: #00ff00;
+            padding: 5px 15px;
+            border-radius: 0;
+            border: 1px solid #00ff00;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: #00ff00;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #00cc00;
+            font-size: 1.8rem;
+            margin: 25px 0 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #005500;
+        }
+
+        h3 {
+            color: #00aa00;
+            font-size: 1.4rem;
+            margin: 20px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #88ff88;
+        }
+
+        a {
+            color: #00ffff;
+            text-decoration: none;
+            border-bottom: 1px dotted #00ffff;
+            transition: all 0.3s;
+        }
+
+        a:hover {
+            color: #ffffff;
+            background-color: #005500;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            background-color: #001100;
+            padding: 10px 20px;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .link-btn:hover {
+            background-color: #003300;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .code-block {
+            background-color: #001100;
+            border: 1px solid #005500;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            color: #aaffaa;
+        }
+
+        .code-block pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid #005500;
+        }
+
+        th, td {
+            border: 1px solid #005500;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #002200;
+            color: #00ff00;
+        }
+
+        tr:nth-child(even) {
+            background-color: #001100;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background-color: #001100;
+            border: 1px solid #005500;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .warning {
+            background-color: #330000;
+            border-left: 4px solid #ff0000;
+            padding: 15px;
+            margin: 20px 0;
+            color: #ff8888;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #005500;
+            color: #008800;
+            font-size: 0.9rem;
+        }
+
+        .terminal-line {
+            margin-bottom: 10px;
+        }
+
+        .prompt {
+            color: #00ff00;
+        }
+
+        .command {
+            color: #ffffff;
+        }
+
+        .comment {
+            color: #008800;
+            font-style: italic;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>&gt; JsonTuring.exe<span class="cursor"></span></h1>
+        <div class="version-badge">v1.0.0</div>
+        <p>基于自定义JST语言的图灵机模拟器</p>
+
+        <div class="links">
+            <a href="https://github.com/FeSo4a/JsonTuring/" target="_blank" class="link-btn">
+                GitHub仓库
+            </a>
+            <a href="https://space.bilibili.com/3546674548967510?spm_id_from=333.337.0.0" target="_blank"
+               class="link-btn">
+                Bilibili主页
+            </a>
+        </div>
+    </div>
+
+    <div class="terminal-line">
+        <span class="prompt">C:\&gt;</span>
+        <span class="command">type README.md</span>
+    </div>
+
+    <h2>&gt; 项目简介</h2>
+    <p>JsonTuring 是一个教育性和实验性的图灵机模拟工具，它使用自定义的 JST（JsonScript Turing）脚本语言来描述图灵机的行为。程序会解析
+        JST 文件，初始化纸带，然后按照定义的规则逐步执行，实时显示纸带状态和读写头位置。</p>
+
+    <h2>&gt; 功能特性</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>自定义JST语言</h3>
+            <p>语法简洁直观的领域特定语言</p>
+        </div>
+        <div class="feature-card">
+            <h3>完整图灵机操作</h3>
+            <p>支持状态转换、数值修改、读写头移动</p>
+        </div>
+        <div class="feature-card">
+            <h3>可视化显示</h3>
+            <p>实时显示纸带状态和读写头位置</p>
+        </div>
+        <div class="feature-card">
+            <h3>调试功能</h3>
+            <p>支持清屏、暂停、延时等调试选项</p>
+        </div>
+        <div class="feature-card">
+            <h3>模块化架构</h3>
+            <p>代码解析、执行引擎、屏幕控制分离</p>
+        </div>
+        <div class="feature-card">
+            <h3>编译为EXE</h3>
+            <p>可将JST文件打包为独立可执行文件</p>
+        </div>
+    </div>
+
+    <h2>&gt; 系统要求</h2>
+    <div class="code-block">
+            <pre>
+操作系统: Windows / Linux / macOS
+Python版本: Python 3.x
+依赖库:
+  - Argparse
+  - PyInstaller (可选，用于编译为exe)
+            </pre>
+    </div>
+
+    <h2>&gt; JST 语言语法</h2>
+
+    <h3>基本语法结构</h3>
+    <div class="code-block">
+            <pre>
+<span class="comment">// 这是注释，使用双斜杠</span>
+<span class="comment">// 初始化块：定义图灵机的初始状态</span>
+init {
+    head A;      <span class="comment">// 初始表头（状态标识符）</span>
+    value 1;     <span class="comment">// 初始格子数值</span>
+    pos 5;       <span class="comment">// 读写头初始位置</span>
+    max 10       <span class="comment">// 纸带长度（最后一项不需要分号）</span>
+}
+
+<span class="comment">// 函数定义块：定义状态转换规则</span>
+fn 操作名称 {
+    if (
+        head = A;    <span class="comment">// 触发条件：当前表头为A</span>
+        value = 1    <span class="comment">// 触发条件：当前格子值为1</span>
+    )
+    head B;          <span class="comment">// 执行动作：将表头改为B</span>
+    value 0;         <span class="comment">// 执行动作：将当前格子值改为0</span>
+    move L           <span class="comment">// 执行动作：读写头向左移动（L左/R右/N不动/H停机）</span>
+}
+
+<span class="comment">// 主程序块：定义操作的执行顺序</span>
+main {
+    操作名称1;
+    操作名称2
+}</pre>
+    </div>
+
+    <h3>语法详解</h3>
+    <table>
+        <tr>
+            <th>块类型</th>
+            <th>参数</th>
+            <th>说明</th>
+        </tr>
+        <tr>
+            <td rowspan="4"><strong>init</strong><br>（初始化）</td>
+            <td><code>head</code></td>
+            <td>表头标识符，用于区分不同的状态（如A、B、C）</td>
+        </tr>
+        <tr>
+            <td><code>value</code></td>
+            <td>纸带格子的初始值（通常为0或1）</td>
+        </tr>
+        <tr>
+            <td><code>pos</code></td>
+            <td>读写头的起始位置（从0开始计数）</td>
+        </tr>
+        <tr>
+            <td><code>max</code></td>
+            <td>纸带的总长度</td>
+        </tr>
+        <tr>
+            <td rowspan="7"><strong>fn</strong><br>（函数定义）</td>
+            <td colspan="2"><strong>触发条件（if块）：</strong></td>
+        </tr>
+        <tr>
+            <td><code>head</code></td>
+            <td>判断当前表头是否匹配</td>
+        </tr>
+        <tr>
+            <td><code>value</code></td>
+            <td>判断当前格子值是否匹配</td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>执行动作：</strong></td>
+        </tr>
+        <tr>
+            <td><code>head</code></td>
+            <td>设置新的表头值</td>
+        </tr>
+        <tr>
+            <td><code>value</code></td>
+            <td>修改当前格子的值</td>
+        </tr>
+        <tr>
+            <td><code>move</code></td>
+            <td>L向左 / R向右 / N不动 / H停机</td>
+        </tr>
+        <tr>
+            <td><strong>main</strong><br>（主程序）</td>
+            <td colspan="2">定义操作的执行顺序，按顺序尝试每个操作</td>
+        </tr>
+    </table>
+
+    <h2>&gt; 使用方法</h2>
+
+    <h3>1. 运行JST文件</h3>
+    <div class="code-block">
+            <pre>
+<span class="comment"># 运行示例文件</span>
+cd src
+python JsonTuring.py -r=../example/example
+
+<span class="comment"># 注意：文件路径不需要.jst后缀</span></pre>
+    </div>
+
+    <h3>2. 查看代码解析结果</h3>
+    <div class="code-block">
+            <pre>
+<span class="comment"># 显示分词后的代码结构和函数定义</span>
+python src/JsonTuring.py -a=../example/example</pre>
+    </div>
+
+    <h3>3. 命令行参数</h3>
+    <table>
+        <tr>
+            <th>参数</th>
+            <th>说明</th>
+            <th>默认值</th>
+        </tr>
+        <tr>
+            <td><code>-r, --run FILE</code></td>
+            <td>运行指定的.jst文件（无需后缀）</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><code>-a, --ast FILE</code></td>
+            <td>显示分词后的.jst文件内容（无需后缀）</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><code>-c, --clear</code></td>
+            <td>每个步骤结束后清空屏幕</td>
+            <td>不清屏</td>
+        </tr>
+        <tr>
+            <td><code>-t, --time SECONDS</code></td>
+            <td>每个步骤结束后停顿的秒数</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td><code>-p, --pause</code></td>
+            <td>每个步骤结束后等待用户按回车键继续</td>
+            <td>不暂停</td>
+        </tr>
+    </table>
+
+    <h3>4. 使用示例</h3>
+    <div class="code-block">
+            <pre>
+<span class="comment"># 基本运行</span>
+python src/JsonTuring.py -r=../example/example
+
+<span class="comment"># 带清屏和延时运行（每步延迟1秒）</span>
+python src/JsonTuring.py -r=../example/example -c -t 1
+
+<span class="comment"># 单步调试模式（每步等待用户确认）</span>
+python src/JsonTuring.py -r=../example/example -p
+
+<span class="comment"># 查看解析结果</span>
+python src/JsonTuring.py -a=../example/example</pre>
+    </div>
+
+    <h2>&gt; 示例程序说明</h2>
+    <div class="code-block">
+            <pre>
+<span class="comment">// example/example.jst 演示简单的状态转换</span>
+init {
+    head A;
+    value 1;
+    pos 5;
+    max 10
+}
+
+fn one {
+    if (
+        head = A;
+        value = 1
+    )
+    head B;
+    value 0;
+    move L
+}
+
+fn two {
+    if (
+        head = B;
+        value = 0
+    )
+    head A;
+    value 1;
+    move H
+}
+
+main {
+    one;
+    two
+}</pre>
+    </div>
+    <p><strong>执行流程：</strong></p>
+    <ul style="margin-left: 20px; color: #88ff88;">
+        <li>初始状态：表头A，当前位置值为1</li>
+        <li>第一个操作（one）：如果表头是A且值为1，则将表头改为B，值改为0，向左移动</li>
+        <li>第二个操作（two）：如果表头是B且值为0，则将表头改回A，值改为1，然后停机</li>
+    </ul>
+
+    <h2>&gt; 编写自己的JST程序</h2>
+    <div class="warning">
+        <strong>设计建议：</strong>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>为不同的状态设计清晰的表头命名</li>
+            <li>确保每个状态都有对应的转换规则</li>
+            <li>至少要有一个停机条件（move H）</li>
+            <li>注意处理边界情况（读写头移动到纸带两端）</li>
+            <li>使用注释说明每个操作的作用</li>
+        </ul>
+    </div>
+
+    <h2>&gt; 项目结构</h2>
+    <div class="code-block">
+            <pre>
+JsonTuring/
+├── src/
+│   ├── JsonTuring.py        <span class="comment"># 主入口文件</span>
+│   ├── code_ast/            <span class="comment"># 代码解析模块</span>
+│   │   ├── ast.py           <span class="comment"># AST抽象语法树解析器</span>
+│   │   ├── load_jst.py      <span class="comment"># JST文件加载和初始化</span>
+│   │   └── ast_test.py      <span class="comment"># 解析器测试</span>
+│   ├── run_jst/             <span class="comment"># 执行引擎模块</span>
+│   │   └── run_code.py      <span class="comment"># 图灵机运行逻辑</span>
+│   └── screen/              <span class="comment"># 屏幕控制模块</span>
+│       └── clear_screen.py  <span class="comment"># 清屏功能</span>
+├── example/
+│   └── example.jst          <span class="comment"># 示例JST脚本</span>
+└── README.md                <span class="comment"># 项目说明文档</span></pre>
+    </div>
+
+    <h2>&gt; 常见问题</h2>
+
+    <h3>1. 运行时出现 IndexError: list index out of range</h3>
+    <div class="code-block">
+            <pre>
+这通常是因为fn块中的触发条件或执行动作格式不正确。
+确保：
+  - if块中的条件和执行体都是成对的键值对
+  - 每个配置项都使用正确的语法（key = value）</pre>
+    </div>
+
+    <h3>2. 程序无法正常停机</h3>
+    <div class="code-block">
+            <pre>
+检查是否定义了 move H 的操作，并确保该操作的触发条件能够被满足。</pre>
+    </div>
+
+    <h3>3. 读写头移动超出纸带范围</h3>
+    <div class="code-block">
+            <pre>
+程序会自动处理边界情况：
+  - 向左移出左边界会跳转到右端
+  - 向右移出右边界会跳转到左端</pre>
+    </div>
+
+    <h2>&gt; 许可证</h2>
+    <p>本项目采用 <strong>MIT许可证</strong>，可自由使用和修改。</p>
+
+    <div class="footer">
+        <p>JsonTuring v1.0.0 | MIT许可证</p>
+        <p>By FeSo4a</p>
+        <div class="terminal-line" style="margin-top: 20px;">
+            <span class="prompt">C:\&gt;</span>
+            <span class="command">exit</span>
+            <span class="cursor"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 添加终端打字机效果
+    document.addEventListener('DOMContentLoaded', function () {
+        const cursor = document.querySelector('.cursor');
+
+        // 随机闪烁增强效果
+        setInterval(() => {
+            cursor.style.opacity = Math.random() > 0.5 ? '1' : '0';
+        }, 500);
+
+        // 添加随机噪点效果
+        const container = document.querySelector('.container');
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                container.style.boxShadow = '0 0 25px rgba(0, 255, 0, 0.5)';
+                setTimeout(() => {
+                    container.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.3)';
+                }, 100);
+            }
+        }, 3000);
+    });
+</script>
+</body>
+</html>

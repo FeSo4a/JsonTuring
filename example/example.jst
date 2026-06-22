@@ -1,0 +1,34 @@
+// 定义表头的数值
+init {
+    head A; // 表头
+    value 1; // 当前数值
+    pos 5; // 当前位置
+    max 10 // 纸带长度
+}
+
+// 定义操作
+fn one {
+    if (
+        head = A; // 若当前字符是A
+        value = 1 // 若当前数值是1
+    )
+    head B; // 改变表头
+    value 0; // 改变数值
+    move L // 移动（L左/R右/N空/H停机）
+}
+
+fn two {
+    if (
+        head = B;
+        value = 0
+    )
+
+    head A;
+    value 1;
+    move H
+}
+
+main {
+    one;
+    two
+}
