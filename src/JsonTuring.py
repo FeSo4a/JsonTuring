@@ -7,9 +7,10 @@ from run_jst import *
 def main() -> None:
     parser = argparse.ArgumentParser(
         description='''
-        v1.0.0 | MIT许可证 | By FeSo4a
+        v1.1.0 | MIT许可证 | By FeSo4a
         一个简单的模拟图灵机运行的程序。
-        '''
+        ''',
+        
     )
 
     parser.add_argument('-r', '--run', type=str, help='运行.jst文件（无需后缀）')
@@ -39,7 +40,6 @@ def main() -> None:
         jst.set_function()
         print('提取到的函数定义：')
         print(jst.function)
-
 
 if __name__ == '__main__':
     main()

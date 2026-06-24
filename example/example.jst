@@ -3,7 +3,7 @@ init {
     head A; // 表头
     value 1; // 当前数值
     pos 5; // 当前位置
-    max 10 // 纸带长度
+    max 11 // 纸带长度
 }
 
 // 定义操作
@@ -13,22 +13,34 @@ fn one {
         value = 1 // 若当前数值是1
     )
     head B; // 改变表头
-    value 0; // 改变数值
-    move L // 移动（L左/R右/N空/H停机）
+    value 2; // 改变数值
+    move R // 移动（L左/R右/N空/H停机）
 }
 
 fn two {
     if (
         head = B;
-        value = 0
+        value = 2
+    )
+
+    head C;
+    value 1;
+    move R
+}
+
+fn three {
+    if (
+        head = C;
+        value = 1
     )
 
     head A;
-    value 1;
+    value 2;
     move H
 }
 
 main {
     one;
-    two
+    two;
+    three
 }
